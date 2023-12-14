@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tatsuya Yoshida A01361712</title>
+
+        <!-- import bootstrap -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+        />
+
+        <!-- import jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <form class="w-75 m-auto py-5">
+            <h1>Pokemon</h1>
+            <div class="form-group my-3">
+                <label for="nameInput">Name:</label>
+                <input type="text" class="form-control" id="nameInput" placeholder="Example: Bulbasaur, Pikachu" />
+            </div>
+            <div class="form-group my-3">
+                <label for="typeInput">Type:</label>
+                <input type="text" class="form-control" id="typeInput" placeholder="Example: Grass, Water, Electric"/>
+            </div>
+            <div class="form-group my-3">
+                <label for="attackGreaterThanInput">Attack Greater Than:</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="attackGreaterThanInput"
+                    placeholder="Example: 70"
+                />
+            </div>
+        </form>
+        <button type="submit" class="btn btn-success my-3" id="getPokemonBtn">
+            Get Pokemon!
+        </button>
+        <div class="form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="checkName"
+                value="Name"
+                checked
+            />
+            <label for="" class="form-check-label" for="checkName">Name</label>
+        </div>
+        <div class="form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="checkType"
+                value="Type"
+                checked
+            />
+            <label for="" class="form-check-label" for="checkType">Type</label>
+        </div>
+        <div class="form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="checkHp"
+                value="HP"
+                checked
+            />
+            <label for="" class="form-check-label" for="checkHp">HP</label>
+        </div>
+        <div class="form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="checkAttack"
+                value="Attack"
+                checked
+            />
+            <label for="" class="form-check-label" for="checkAttack"
+                >Attack</label
+            >
+        </div>
+        <div class="form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="checkDefense"
+                value="Defense"
+                checked
+            />
+            <label for="" class="form-check-label" for="checkDefense"
+                >Defense</label
+            >
+        </div>
+
+        <div id="results" class="w-75 m-auto">
+            <table class="table table-striped" id="pokemonTable">
+                <thead class="thead-light"></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <script>
+            $(document).ready(async function () {
+                $("#getPokemonBtn").click(async function () {
+                    // set up the query string
+                    const queryObject = new URLSearchParams();
+
+                    // get the name input
+                    if (nameInput.value) {
+                        queryObject.append("name", NameInput.value);
+                    }
+
+                    // get the type input
+                    if (typeInput.value) {
+                        queryObject.append("type", typeInput.value);
+                    }
+
+                    // get the attack greater than input
+                    if (attackGreaterThanInput.value) {
+                        queryObject.append(
+                            "attackGreaterThan",
+                            attackGreaterThanInput.value
+                        );
+                    }
+
+                    // send the query to the server
+                    const queryString = queryObject.toString();
+
+                    // fetch the data from the server using the query string
+                    try {
+                        const resp = await fetch(
+                            `http://localhost:3000/pokemon?${queryString}`
+                        );
+
+                        // convert hte response to json
+                        try {
+                            const respJson = await resp.json();
+                        } catch (err) {
+                            alert("Something went wrong while converting fetched data to json");
+                        }
+                    } catch (err) {
+                        alert("Something went wrong while fetching data from the server");
+                    }
+
+                    // declare thead and tbody, then clear them
+                    const thead = $("#pokemonTable thead");
+                    const tbody = $("#pokemonTable tbody");
+                    thead.empty();
+                    tbody.empty();
+
+                    // create the table headers
+                    const headers = [Name, Type, Hp, Attack, Defense];
+                    headers.forEach((header) => {
+                        if ($(`#check${header}`).checked) {
+                            const th = $("<th></th>");
+                            th.text(header);
+                            thead.append(th);
+                        }
+                    })
+
+                    // add the data depending on the headers
+                    respJson.forEach((pokemon) => {
+                        const row = $("<tr></tr>");
+                        headers.forEach((header) => {
+                            if ($(`#check${header}`).checked) {
+                                const td = $("<td></td>");
+                                switch (header) {
+                                    case "Name":
+                                        td.text(pokemon.name.english);
+                                        break;
+                                    case "Type":
+                                        td.text(pokemon.type);
+                                        break;
+                                    case "Hp":
+                                        td.text(pokemon.base.HP);
+                                        break;
+                                    case "Attack":
+                                        td.text(pokemon.base.Attack);
+                                        break;
+                                    case "Defense":
+                                        td.text(pokemon.base.Defense);
+                                        break;
+                                }
+                            }
+                        });
+                    })
+                });
+            });
+        </script>
+    </body>
+</html>
